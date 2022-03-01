@@ -11,7 +11,7 @@ import imageio
 import os
 import matplotlib.pyplot as plt
 from scipy.sparse import linalg, lil_matrix
-
+import time
 
 def toy_recon(image):
     imh, imw = image.shape
@@ -49,8 +49,48 @@ def poisson_blend(fg, mask, bg):
     :param bg: (H, W, C) target image / background
     :return: (H, W, C)
     """
-    return fg * mask + bg * (1 - mask)
+    mask_area = np.flatnonzero(mask)
+    nonzero_num = len(mask_area)
+    imh, imw, channel = bg.shape
+    im2var = np.arange(imh * imw).reshape((imh, imw)).astype(int)
+    result = np.zeros((nonzero_num, channel))
 
+    for c in range(channel):
+      bg_img = bg[:,:,c]
+      src_img = fg[:,:,c]
+      A = lil_matrix((4 * nonzero_num + 1, nonzero_num))
+      b = np.zeros(4 * nonzero_num + 1)
+      e = 0
+      for row in range(imh-1):
+        for col in range(imw-1):
+          if im2var[row, col] not in mask_area:
+            continue
+          directions = [(row, col-1), (row, col+1), (row-1, col), (row+1, col)]
+          for direction in directions:
+            A[e, np.where(mask_area == im2var[row,col])[0][0]] = 1
+            if im2var[direction] in mask_area:
+              A[e, np.where(mask_area == im2var[direction])[0][0]] = -1
+              b[e] = src_img[row, col] - src_img[direction]
+            else:
+              b[e] = bg_img[direction] + src_img[row, col] - src_img[direction]
+            e += 1
+
+      v = linalg.lsqr(A,b)
+      # v = np.clip(v[0], 0, 255).astype(int)
+      v = np.clip(v[0], 0, 1)
+      result[:,c] = v
+
+    # output = np.zeros((imh, imw, channel), dtype=int)
+    output = np.zeros((imh, imw, channel))
+    for row in range(imh):
+      for col in range(imw):
+        if im2var[row, col] in mask_area:
+          for c in range(channel):
+            output[row, col, c] = result[np.where(mask_area == im2var[row,col])[0][0], c]
+        else:
+          for c in range(channel):
+            output[row, col, c] = bg[row, col, c]
+    return output
 
 def mixed_blend(fg, mask, bg):
     """EC: Mix gradient of source and target"""
@@ -69,6 +109,8 @@ def mixed_grad_color2gray(rgb_image):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Poisson blending.")
+
+    start_time = time.time()
     parser.add_argument("-q", "--question", required=True, choices=["toy", "blend", "mixed", "color2gray"])
     args, _ = parser.parse_known_args()
 
@@ -103,6 +145,7 @@ if __name__ == '__main__':
         mask = (mask.sum(axis=2, keepdims=True) > 0)
 
         blend_img = poisson_blend(fg, mask, bg)
+        print("--- %s seconds ---" % (time.time() - start_time))
 
         plt.subplot(121)
         plt.imshow(fg * mask + bg * (1 - mask))
