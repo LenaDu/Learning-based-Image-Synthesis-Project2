@@ -8,29 +8,31 @@ import argparse
 import numpy as np
 import cv2
 import imageio
+import os
 import matplotlib.pyplot as plt
-from scipy.sparse import linalg
+from scipy.sparse import linalg, lil_matrix
 
 
 def toy_recon(image):
     imh, imw = image.shape
     im2var = np.arange(imh * imw).reshape((imh, imw)).astype(int)
-    A = np.zeros([2 * (imw - 1) * (imh - 1), imw * imh])
-    b = np.zeros(2 * (imw - 1) * (imh - 1))
+    A = lil_matrix((2 * (imw) * (imh), (imw) * (imh)))
+    b = np.zeros(2 * (imw) * (imh))
 
     offset = (imw - 1) * (imh - 1)
+
     # x gradients & y gradients
     e = 0
     for y in range(imh - 1):
         for x in range(imw - 1):
-            A[e][im2var[y][x + 1]] = 1
-            A[e][im2var[y][x]] = -1
+            A[e, im2var[y, x + 1]] = 1
+            A[e, im2var[y, x]] = -1
 
-            A[e + offset][im2var[y + 1][x]] = 1
-            A[e + offset][im2var[y][x]] = -1
+            A[e + offset, im2var[y + 1, x]] = 1
+            A[e + offset, im2var[y, x]] = -1
 
-            b[e] = image[y][x + 1] - image[y][x]
-            b[e + offset] = image[y + 1][x] - image[y][x]
+            b[e] = image[y, x + 1] - image[y, x]
+            b[e + offset] = image[y + 1, x] - image[y, x]
 
             e += 1
 
@@ -38,7 +40,6 @@ def toy_recon(image):
     b[-1] = image[0, 0]
     v = linalg.lsqr(A, b)
     return v[0].reshape((imh, imw))
-
 
 def poisson_blend(fg, mask, bg):
     """
