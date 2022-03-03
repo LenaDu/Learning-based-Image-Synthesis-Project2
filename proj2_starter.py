@@ -112,19 +112,18 @@ def mixed_blend(fg, mask, bg):
             A[e, np.where(mask_area == im2var[row,col])[0][0]] = 1
             src_gradient = src_img[row, col] - src_img[direction]
             tgt_gradient = bg_img[row,col] - bg_img[direction]
+            # Gradient
             if im2var[direction] in mask_area:
               A[e, np.where(mask_area == im2var[direction])[0][0]] = -1
               if abs(src_gradient) >= abs(tgt_gradient):
                 b[e] = src_gradient
               else:
                 b[e] = tgt_gradient
-              # b[e] = src_img[row, col] - src_img[direction] ## TODO
             else:
               if abs(src_gradient) >= abs(tgt_gradient):
                 b[e] = bg_img[direction] + src_gradient
               else:
                 b[e] = bg_img[direction] + tgt_gradient
-              # b[e] = bg_img[direction] + src_img[row, col] - src_img[direction] ## TODO
             e += 1
 
       v = linalg.lsqr(A,b)

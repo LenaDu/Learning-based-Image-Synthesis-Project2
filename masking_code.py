@@ -198,7 +198,7 @@ def paste_mask(im2name, masks_to_ret, im2=None):
 
 # run with 2 image names to generate and save masks and new source image
 def save_masks(im1name, im2name):
-    masks_to_ret, source_im = create_mask(imname)
+    masks_to_ret, source_im = create_mask(im1name)
     im2masks_to_ret, target_im = paste_mask(im2name=im2name, masks_to_ret=masks_to_ret)
     # im1 is the source, im2 is the target
     source_mask = np.zeros((source_im.shape[0], source_im.shape[1], 3))
@@ -228,6 +228,6 @@ def save_masks(im1name, im2name):
     return source_mask, target_mask, source_im
 
 # Example usage
-imname = "./data/source_01.jpg"
-im2name = "./data/target_01.jpg"
+imname = "./data/rabbit.jpg"
+im2name = "./data/pajama.jpg"
 save_masks(imname, im2name)
