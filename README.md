@@ -24,8 +24,6 @@ and our target is to construct `A` and `b`, therefore solve `v`. Therefore, `v` 
 
 The toy problem introduced the easiest way to construct a linear system to solve the vector `v`. The number of rows in `A` corresponds to the number of restrictions. In this case, we consider two direction of each pixel, with the boundary condition, there are `2 * (height - 1) * (width - 1)` rows in the matrix `A`. Since the `v` is the flatterned vector of the grayscale image we want to obtain, its length is naturally `height * width` as the number of pixels in the original image. The output is same as the input.
 
-<img src="./collected_img/toy.png" style="zoom:50%;" />
-
 
 
 ### 2.2 Poisson Blending
@@ -59,30 +57,10 @@ For the first one, this is a nice way to preview if a design shows great on a ce
 For the second one, in the advertisement industry, it is common to use special effects to make food photos, and this could be very useful for their objective.
 For the third one, I like how it looks like to put a tattoo onto a piece of textured paper. Also, we can reverse this process to show if a painting shows great as a tattoo, and help the customer to decide if they are going to do it.
 
-| Title               | Source Image                   | Target Image                                                 | Result                                                       |
-| ------------------- | ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Rabbit pajama       | ![rabbit](data/rabbit.jpg)     | <img src="data/pajama.jpg" alt="pajama" style="zoom: 20%;" /> | <img src="collected_img/5_blend.png" alt="5_blend" style="zoom:50%;" /> |
-| Strawberry cocktail | ![rabbit](data/strawberry.jpg) | <img src="data/cocktail.jpg" alt="rabbit" style="zoom: 33%;" /> | <img src="collected_img/4_mixed.png" alt="5_blend" style="zoom:100%;" /> |
-| Tattoo painting     | ![rabbit](data/tattoo.jpg)     | ![rabbit](data/paper.jpg)                                    | <img src="collected_img/3_mixed.png" alt="5_blend" style="zoom:100%;" /> |
-| Face sun            | ![rabbit](data/me.png)         | ![rabbit](data/sun.png)                                      | <img src="collected_img/2_mixed.png" alt="2_blend" style="zoom:100%;" /> |
-
-
-
 ### 3.2 Supplemental results
 
 This shows the differencde between Poisson Blending and Mixed Blending. The result with Poisson Blending loses the texture information while we actually need it, but the Mixed result well shown the texture.
 
-| Title           | Source Image               | Target Image              | Result of Poisson                                            | Result of Mixed                                              |
-| --------------- | -------------------------- | ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Tattoo painting | ![rabbit](data/tattoo.jpg) | ![rabbit](data/paper.jpg) | <img src="collected_img/3_blend_simple.png" alt="5_blend" style="zoom:100%;" /> | <img src="collected_img/3_mixed_simple.png" alt="5_blend" style="zoom:100%;" /> |
-
-
-
 This is a failure example. I wanted to blend a cutie sun into my painting of a snow scene. However, because the color temperature of the source image is highly differentiated from the target image, it looks weird in both results using Poisson and Mixed. This should be concerned because we cannot forcibly make two images blended naturally if they are in different environments with completely different ambient light settings, etc. We might do an auto white balancing first, and then we can use image blending to achieve that.
 
-
-
-| Title       | Source Image         | Target Image                                             | Result of Poisson                                            | Result of Mixed                                              | Paste                                                        |
-| ----------- | -------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Sun in snow | ![sun](data/sun.jpg) | <img src="data/snow.png" alt="snow" style="zoom:50%;" /> | <img src="collected_img/1_blend.png" alt="5_blend" style="zoom:100%;" /> | <img src="collected_img/1_mixed.png" alt="5_blend" style="zoom:100%;" /> | <img src="collected_img/1_paste.png" alt="5_blend" style="zoom:100%;" /> |
 
